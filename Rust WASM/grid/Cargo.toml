@@ -1,0 +1,53 @@
+[package]
+name = "grid"
+version = "0.1.0"
+authors = ["llalma <lhulsmanbenson@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen = "0.2.74"
+
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+# code size when deploying.
+console_error_panic_hook = { version = "0.1.6", optional = true }
+
+web-sys = { version = "0.3.39", features = ["console", "FileReader", "ProgressEvent", "HtmlInputElement", "FileList", "File"] }
+
+#Web worker requirements
+rayon = "1.5"
+wasm-bindgen-rayon = "1.0"
+
+# our custom polars fork that works in wasm
+[dependencies.polars]
+features = [
+    "dtype-full",
+    "mode",
+    "csv-file",
+    "lazy",
+    "strings",
+    "temporal",
+    "rows",
+    "cum_agg",
+    "rolling_window",
+    "round_series",
+    "arange",
+    "diagonal_concat",
+    "ndarray"
+]
+default-features = false
+git =  "https://github.com/llalma/polars-wasm.git"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.13"
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
