@@ -1,6 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import wasmPack from 'vite-plugin-wasm-pack';
 import { defineConfig } from 'vite'
+import { comlink } from 'vite-plugin-comlink'
 
 export default defineConfig({
 	server: {
@@ -10,5 +11,11 @@ export default defineConfig({
 		}
 	},
 	plugins: [sveltekit(),
-				wasmPack('./rustFunctions/grid')]
+				wasmPack('./rustFunctions/grid'),
+				comlink()],
+	worker: {
+		plugins: [
+			comlink()
+		]
+	}
 })

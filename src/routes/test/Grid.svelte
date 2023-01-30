@@ -1,23 +1,33 @@
 <script lang="ts">
     import {onMount} from "svelte";
-    // import init, {Grid} from '../../../rustFunctions/grid/pkg/Grid';
-    import { threads } from 'wasm-feature-detect';
     import init, {Grid, initThreadPool } from '../../../rustFunctions/grid/pkg/grid'
+    import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
+    import './wasm-worker'
 
     let data;
     let grid = [4,3];
+
+    let obj;
+    let worker_ready = false;
 
     //File uploaded to load data
     let upload_file;
 
     // Mount Rust WASM Function
     onMount(async () => {
-        await init().then(() => {
-            data = new Grid(grid[0], grid[1]);
-        });
-        await initThreadPool(navigator.hardwareConcurrency).then(() => {
-            console.log('Successfully initialised thread pool')
+        // await init().then(() => {
+        //     // data = new Grid(grid[0], grid[1]);
+        // });
+        const worker = new Worker(new URL("./wasm-worker.js", import.meta.url), {type:"module"});
+        obj = Comlink.wrap(worker);
+        await obj.initThreads().then(() => {
+            worker_ready = true
+            console.log('Web worker ready')
         })
+
+        // console.log(await obj.data.get_cell(0,0))
+
+
     });
 
     function set_cell(e, i, j){
@@ -43,9 +53,10 @@
 
         let reader = new FileReader();
         reader.readAsArrayBuffer(file);
-        reader.onload = data1 => {
-            console.log(data.load_csv(new Uint8Array(data1.target.result)))
-        };
+        reader.onload =  (async (data1) => {
+            console.log(await obj.data.load_csv(new Uint8Array(data1.target.result)))
+            obj.data = obj.data
+        });
     }
 
 </script>
@@ -59,7 +70,7 @@
 
 <button on:click={download_csv_file}>Save To CSV</button>
 
-{#if data}
+{#if worker_ready}
 
     <table style="table">
         <!--Insert data cells-->
@@ -69,7 +80,10 @@
                 {#each Array(grid[1]) as _,j}
                     <td contenteditable="true"
                         on:blur={(event) => set_cell(event, i,j)}>
-                        {data.get_cell(i,j)}
+                        {#await obj.data.get_cell(i,j)}
+                            {:then val}
+                            {val}
+                        {/await}
                     </td>
 
                 {/each}

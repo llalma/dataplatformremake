@@ -78,7 +78,9 @@ impl Grid {
 
         let cursor = Cursor::new(shorts);
 
-        let lf = CsvReader::new(cursor).with_ignore_parser_errors(true).finish().unwrap().lazy();
+        let lf = CsvReader::new(cursor).finish().unwrap().lazy();
+
+        &self.set_cell(1, 1, "test".to_owned());
 
         return lf.describe_plan();
     }
