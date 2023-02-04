@@ -6,6 +6,7 @@ extern crate wasm_bindgen;
 use wasm_bindgen::prelude::*;
 use polars::prelude::*;
 use std::io::Cursor;
+use js_sys;
 
 pub use wasm_bindgen_rayon::init_thread_pool;
 
@@ -33,6 +34,11 @@ impl Grid {
                        "Color" => &["Red", "Yellow", "Green", "Blue"]).unwrap()
 
         }
+    }
+
+    pub fn get_shape(&self) -> js_sys::Array{
+        let x = vec![self.data.height() as u32, self.data.width() as u32];
+        return x.into_iter().map(JsValue::from).collect();
     }
 
     pub fn get_cell(&self, row_index: usize, column_index: usize) -> String{
@@ -73,16 +79,32 @@ impl Grid {
         return output.join("\n")
     }
 
-    pub fn load_csv(&mut self, buff: &[u8]) -> String {
+    pub fn load_csv(&mut self, buff: &[u8]) {
         let shorts = unsafe {buff.align_to::<u8>().1};
 
         let cursor = Cursor::new(shorts);
 
-        let lf = CsvReader::new(cursor).finish().unwrap().lazy();
+        // Causes alot of logs to be generated in console for some reason
+        let lf = CsvReader::new(cursor)
+            .has_header(true)
+            .with_ignore_parser_errors(true)
+            .finish();
 
-        &self.set_cell(1, 1, "test".to_owned());
+        let matched_df = match lf {
+            Ok(df) => df,
+            Err(e) => match e {
+                polars::error::PolarsError::NoData(polars::error::ErrString::Borrowed("empty csv")) => DataFrame::default(),
+                _ => panic!("Problem opening the file: {:?}", e)
+            }
+        };
 
-        return lf.describe_plan();
+        //Resize class instance
+        self.height = matched_df.height();
+        self.width = matched_df.width();
+
+        // Update each of the cells with the new data
+        self.data = matched_df.clone();
+
     }
 
 }

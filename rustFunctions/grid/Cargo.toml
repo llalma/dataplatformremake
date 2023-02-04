@@ -20,6 +20,7 @@ wasm-bindgen = "0.2.74"
 console_error_panic_hook = { version = "0.1.6", optional = true }
 
 web-sys = { version = "0.3.39", features = ["console", "FileReader", "ProgressEvent", "HtmlInputElement", "FileList", "File"] }
+js-sys = '*'
 
 #Web worker requirements
 rayon = "1.5"
