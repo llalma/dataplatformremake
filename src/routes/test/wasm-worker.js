@@ -16,6 +16,12 @@ class MyClass{
     set_cell(i,j,data) {
         this.data.set_cell(i, j, data)
     }
+    get_header(i){
+        return this.data.get_header(i)
+    }
+    set_header(i, data){
+        this.data.set_header(i, data)
+    }
 
     load_csv_file(file){
         let reader = new FileReader();

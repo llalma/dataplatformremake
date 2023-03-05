@@ -59,6 +59,20 @@
 {#if worker_ready}
 
     <table style="table">
+
+        <!--Insert the column headers-->
+        <tr>
+            {#each Array(grid[1]) as _,i}
+                <th contenteditable="true"
+                    on:blur={(event) => inst.set_header(i, event.target.innerText).then(() => {inst=inst})}>
+                    {#await inst.get_header(i)}
+                    {:then val}
+                        {val}
+                    {/await}
+                </th>
+            {/each}
+        </tr>
+
         <!--Insert data cells-->
         {#each Array(grid[0]) as _,i}
             <tr>
@@ -85,9 +99,9 @@
         border-collapse: collapse;
     }
 
-    tr{
+    th{
         border: solid;
-        border-width: 1px;
+        border-width: 2px;
     }
 
     td{

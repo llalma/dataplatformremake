@@ -50,6 +50,7 @@ impl Grid {
 
     pub fn set_cell(&mut self, row_index: usize, column_index: usize, data: String){
 
+        let col_name = self.get_header(column_index);
         let mut s1 = self.data.clone().select_at_idx(column_index.clone()).unwrap().utf8().unwrap().clone();
 
         s1 = s1.clone().into_iter()
@@ -60,15 +61,40 @@ impl Grid {
             }).collect();
 
         self.data.replace_at_idx(column_index, s1).unwrap();
+        self.set_header(column_index, col_name) //This is dumb but the replace_at_idx is replacing the column name
     }
+
+    pub fn get_header(&self, row_index: usize) -> String{
+        return self.data.get_column_names()[row_index].to_string();
+    }
+
+    pub fn set_header(&mut self, row_index: usize, data: String){
+        // Get the current column names
+        let current_columns = &mut self.data.get_column_names_owned();
+
+        // Update the current column names with the new value
+        current_columns[row_index] = data;
+
+        // Set the new column names
+        self.data.set_column_names(&current_columns).unwrap();
+    }
+
+
 
     pub fn to_csv(&self) -> String{
 
         let mut output = Vec::with_capacity(self.width.clone());
         let mut row_str = Vec::with_capacity(self.height.clone());
 
-        for i in 0..self.height.clone(){
+        //Iterate over header cells and create the header for
+        for i in 0..self.width.clone(){
+            row_str.push(self.get_header(i));
+        }
+        output.push(row_str.join(","));
+        row_str = Vec::with_capacity(self.height.clone());
 
+        // Iterate over the data cells and create csv rows
+        for i in 0..self.height.clone(){
             for j in 0..self.width.clone(){
                 row_str.push(self.get_cell(i,j));
             }
