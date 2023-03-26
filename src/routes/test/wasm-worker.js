@@ -4,10 +4,12 @@ import * as Comlink from 'comlink'
 
 class MyClass{
 
+    grid = ''
+
     async init_workers() {
         await init()
         await initThreadPool(1)
-        return new Grid(4,3)
+        this.grid = new Grid(4,3)
     };
 
 }

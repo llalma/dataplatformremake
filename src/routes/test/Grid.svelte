@@ -5,7 +5,6 @@
     import './wasm-worker'
 
     let grid = [4,3];
-    let wasm_backend = '';
 
     let inst;
     let worker_ready = false;
@@ -18,14 +17,13 @@
         
         await inst.init_workers().then((res) => {
             worker_ready = true
-            wasm_backend = res
         })
     });
 
     async function download_csv_file(){
         const fileName = "test.csv"
 
-        const blob = new Blob([await wasm_backend.to_csv()], {type: 'text/plain'});
+        const blob = new Blob([await inst.grid.to_csv()], {type: 'text/plain'});
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = fileName;
@@ -38,9 +36,9 @@
         let reader = new FileReader();
         reader.readAsArrayBuffer(file);
         reader.onload =  (async (data) => {
-            await wasm_backend.load_csv(new Uint8Array(data.target.result))
+            await inst.grid.load_csv(new Uint8Array(data.target.result))
                 .then(async () => {
-                    grid = await wasm_backend.get_shape()
+                    grid = await inst.grid.get_shape()
                 })
                 .then(() => {
                     inst = inst;
@@ -67,8 +65,8 @@
         <tr>
             {#each Array(grid[1]) as _,i}
                 <th contenteditable="true"
-                    on:blur={(event) => wasm_backend.set_header(i, event.target.innerText).then(() => {inst=inst})}>
-                    {#await x.get_header(i)}
+                    on:blur={(event) => inst.grid.set_header(i, event.target.innerText).then(() => {inst=inst})}>
+                    {#await inst.grid.Grid.get_header(i)}
                     {:then val}
                         {val}
                     {/await}
@@ -82,8 +80,8 @@
 
                 {#each Array(grid[1]) as _,j}
                     <td contenteditable="true"
-                        on:blur={(event) => wasm_backend.set_cell(i,j, event.target.innerText).then(() => {inst=inst})}>
-                        {#await wasm_backend.get_cell(i,j)}
+                        on:blur={(event) => inst.grid.set_cell(i,j, event.target.innerText).then(() => {inst=inst})}>
+                        {#await inst.grid.get_cell(i,j)}
                             {:then val}
                             {val}
                         {/await}
