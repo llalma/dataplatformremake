@@ -25,6 +25,7 @@ js-sys = '*'
 #Web worker requirements
 rayon = "1.5"
 wasm-bindgen-rayon = "1.0"
+wasm-bindgen-test = "0.3.13"
 
 # our custom polars fork that works in wasm
 [dependencies.polars]
@@ -47,7 +48,7 @@ default-features = false
 git =  "https://github.com/llalma/polars-wasm.git"
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.13"
+wasm-bindgen-test = "0.3.34"
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.

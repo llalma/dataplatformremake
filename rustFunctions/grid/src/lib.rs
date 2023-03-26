@@ -30,9 +30,8 @@ impl Grid {
             height: size_x,
             width: size_y,
             data : df!("Index" => &["0", "1", "2", "4"],
-                       "Fruit" => &["Apple", "Apple", "Pear", "dog"],
-                       "Color" => &["Red", "Yellow", "Green", "Blue"]).unwrap()
-
+                               "Fruit" => &["Apple", "Apple", "Pear", "dog"],
+                               "Color" => &["Red", "Yellow", "Green", "Blue"]).unwrap()
         }
     }
 
@@ -78,8 +77,6 @@ impl Grid {
         // Set the new column names
         self.data.set_column_names(&current_columns).unwrap();
     }
-
-
 
     pub fn to_csv(&self) -> String{
 
@@ -133,4 +130,26 @@ impl Grid {
 
     }
 
+}
+
+mod tests {
+    use wasm_bindgen_test::*;
+    use super::Grid;
+    use polars::prelude::*;
+
+    wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
+    #[wasm_bindgen_test]
+    pub fn test_empty_grid() {
+
+        // let data: DataFrame = df!("Index" => &["0", "1", "2", "4"],
+        //                        "Fruit" => &["Apple", "Apple", "Pear", "dog"],
+        //                        "Color" => &["Red", "Yellow", "Green", "Blue"]).unwrap();
+        //
+        // let grid: Grid = Grid::new(4, 3);
+        //
+        // let expected = [4,3];
+
+        assert_eq!(1, 0);
+    }
 }
